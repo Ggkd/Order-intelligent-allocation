@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <title>新百顺-商品列表</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/reset.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+</head>
+<body>
+<div class="header_con">
+    <div class="header">
+        <div class="welcome fl">欢迎来到新百顺!</div>
+        <div class="fr">
+            <div class="login_btn fl">
+                {% if user.username %}
+                    <a>{{ user.username }}</a>
+                    <span>|</span>
+                    <a href="/logout">注销</a>
+                {% else %}
+                    <a href="/login">登录</a>
+                    <span>|</span>
+                    <a href="/register">注册</a>
+                {% endif %}
+            </div>
+            <div class="user_link fl">
+                <span>|</span>
+                <a href="{% url 'user:info' %}">用户中心</a>
+                <span>|</span>
+                <a href="{% url 'cart:list' %}">我的购物车</a>
+                <span>|</span>
+                <a href="{% url 'user:order' 1 %}">我的订单</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="search_bar clearfix">
+    <a href="/index" class="logo fl"><img style="width: 135px; height: 60px;" src="/static/images/logo.png"></a>
+    <div class="search_con fl">
+        <form action="/search" method="get">
+            {% csrf_token %}
+        <input type="text" class="input_text fl" name="q" placeholder="搜索商品">
+        <input type="button" class="input_btn fr" name="" value="搜索">
+            </form>
+    </div>
+    <div class="guest_cart fr">
+        <a href="{% url 'cart:list' %}" class="cart_name fl">我的购物车</a>
+        <div class="goods_count fl">{{ cart_count }}</div>
+    </div>
+</div>
+
+<div class="navbar_con">
+    <div class="navbar clearfix">
+        <div class="subnav_con fl">
+            <h1>全部商品分类</h1>
+            <span></span>
+            <ul class="subnav">
+
+            </ul>
+        </div>
+        <ul class="navlist fl">
+            <li><a href="/index">首页</a></li>
+            <li class="interval">|</li>
+            <li><a href="">手机百顺</a></li>
+            <li class="interval">|</li>
+            <li><a href="">活动</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="breadcrumb">
+    <a>{{ query }}</a>
+    <span>></span>
+    <a>搜索结果如下：</a>
+</div>
+
+<div class="main_wrap clearfix">
+    <div class="r_wrap fr clearfix">
+        <ul class="goods_type_list clearfix">
+            {% for sku in page %}
+                <li>
+                    <a href="{% url 'goods:detail' sku.object.id %}"><img src="{{ sku.object.image.url }}"></a>
+                    <h4><a href="{% url 'goods:detail' sku.object.id %}">{{ sku.object.name }}</a></h4>
+                    <div class="operate">
+                        <span class="prize">￥{{ sku.object.price }}</span>
+                        <span class="unit">{{ sku.object.price }}/{{ sku.object.unite }}</span>
+                        <a href="{% url 'goods:detail' sku.object.id %}" class="add_goods" title="加入购物车"></a>
+                    </div>
+                </li>
+                {% empty %}
+                <p>没有您要搜索的商品</p>
+            {% endfor %}
+        </ul>
+
+        <div class="pagenation">
+            <a href="/search?q={{ query }}&page=1">首页</a>
+            {% if page.has_previous %}
+                <a href="/search?q={{ query }}&page={{ page.previous_page_number }}">上一页</a>
+            {% endif %}
+
+            {% for pindex in paginator.page_range %}
+                {% if pindex == page.number %}
+                    <a href="/search?q={{ query }}&page={{ pindex }}" class="active">{{ pindex }}</a>
+                    {% else %}
+                    <a href="/search?q={{ query }}&page={{ pindex }}">{{ pindex }}</a>
+                {% endif %}
+            {% endfor %}
+
+            {% if page.has_next %}
+                <a href="/search?q={{ query }}&page={{ page.next_page_number }}">下一页</a>
+            {% endif %}
+            <a href="/search?q={{ query }}&page={{ paginator.num_pages }}">尾页</a>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <div class="foot_link">
+        <a href="#">关于我们</a>
+        <span>|</span>
+        <a href="#">联系我们</a>
+        <span>|</span>
+        <a href="#">招聘人才</a>
+        <span>|</span>
+        <a href="#">友情链接</a>
+    </div>
+    <p>CopyRight © 2019 青岛新百顺信息技术有限公司 All Rights Reserved</p>
+    <p>电话：0532-****888 京ICP备*******8号</p>
+</div>
+<script type="" src="/static/js/jquery-3.3.1.js"></script>
+<script type="">
+
+        $.ajax({
+            type:"get",
+            url:'/goods/search',
+            dataType:'json',
+            data:{},
+            success:function (data) {
+                $('.goods_count').text(data.cart_count);
+                $(".subnav").html(data.listr);
+            }
+        })
+
+</script>
+</body>
+</html>
